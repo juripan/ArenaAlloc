@@ -50,6 +50,12 @@ void print_arena(const JPArena* arena){
     while(tmp != NULL){
         printf("block start: %p, capacity: %ld bytes, used: %ld bytes\n", 
             tmp->memory, tmp->bytes_reserved, arena->chunk_size);
+        printf("memory: ");
+        unsigned char* mem = tmp->memory;
+        for(size_t i  = 0; i < tmp->bytes_reserved; i++){
+            printf("%02hhX ", mem[i]);
+        }
+        puts("");
         tmp = tmp->next;
     }
 }
