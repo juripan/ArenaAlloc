@@ -38,4 +38,9 @@ void print_arena(const JPArena* arena);
 */
 void arena_free(JPArena* arena);
 
+/*
+ * resets the used memory counter of every Chunk in the arena
+ * doesn't free Chunks or their content
+*/
+void arena_reset(JPArena* const arena);
 #endif
