@@ -35,7 +35,7 @@ void* arena_alloc(JPArena* arena, size_t size_bytes){
     } else {
         arena->end->bytes_reserved += size_bytes;
     }
-    return (char*)arena->end->memory + arena->end->bytes_reserved;
+    return (char*)arena->end->memory + arena->end->bytes_reserved - size_bytes;
 }
 
 void print_arena(const JPArena* arena){
