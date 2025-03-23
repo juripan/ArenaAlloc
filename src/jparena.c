@@ -3,8 +3,14 @@
 
 #include "jparena.h"
 
+// prints an error message to stderr and kills the program
 #define PANIC(msg) fprintf(stderr, msg "\n"); exit(1)
 
+
+/*
+ * allocates a Chunk and its memory,
+ * only used internally, shouldn't be called by the user
+*/
 Chunk* chunk_alloc(JPArena* arena){
     Chunk* chunk = malloc(sizeof(Chunk));
     if(chunk == NULL){
@@ -48,6 +54,10 @@ void print_arena(const JPArena* arena){
     }
 }
 
+/*
+ * frees a chunk and its memory
+ * only used internally, shouldn't be called by the user
+*/
 void chunk_free(Chunk* ch){
     free(ch->memory);
     free(ch);
