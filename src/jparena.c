@@ -3,41 +3,53 @@
 
 #include "jparena.h"
 
-#define PANIC(msg) fprintf(stderr, msg); exit(1)
+#define PANIC(msg) fprintf(stderr, msg "\n"); exit(1)
 
-//TODO: make chunks into bigger slices of memory so theres no need to malloc multiple small chunks
-void* arena_alloc(JPArena* arena, size_t size_bytes){
+Chunk* chunk_alloc(JPArena* arena){
     Chunk* chunk = malloc(sizeof(Chunk));
     if(chunk == NULL){
         PANIC("Chunk allocation failed");
     }
-    chunk->item = malloc(size_bytes);
+    chunk->memory = malloc(arena->chunk_size);
     chunk->next = NULL;
-    if(chunk->item == NULL){
+    if(chunk->memory == NULL){
         PANIC("Chunk content allocation failed");
     }
+    return chunk;
+}
 
+void* arena_alloc(JPArena* arena, size_t size_bytes){
+    if(arena->chunk_size < size_bytes){
+        PANIC("Chunk size too small for one item");
+    }
     if(arena->start == NULL){
+        Chunk* chunk = chunk_alloc(arena);
+        chunk->bytes_reserved = size_bytes;
         arena->start = chunk;
         arena->end = chunk;
-    } else {
+    } else if(arena->end->bytes_reserved + size_bytes > arena->chunk_size){
+        Chunk* chunk = chunk_alloc(arena);
+        chunk->bytes_reserved = size_bytes;
         arena->end->next = chunk; //moves the chunk into the last pos
         arena->end = arena->end->next; // updates the pointer to the new last chunk
+    } else {
+        arena->end->bytes_reserved += size_bytes;
     }
-    return chunk->item;
+    return (char*)arena->end->memory + arena->end->bytes_reserved;
 }
 
 void print_arena(const JPArena* arena){
     Chunk* tmp = arena->start;
-    if(tmp == NULL) puts("---Empty---");
+    if(tmp == NULL) puts("All chunks freed");
     while(tmp != NULL){
-        printf("pointer: %p\n", tmp->item);
+        printf("block start: %p, capacity: %ld bytes, used: %ld bytes\n", 
+            tmp->memory, tmp->bytes_reserved, arena->chunk_size);
         tmp = tmp->next;
     }
 }
 
 void chunk_free(Chunk* ch){
-    free(ch->item);
+    free(ch->memory);
     free(ch);
 }
 

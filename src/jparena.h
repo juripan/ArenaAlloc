@@ -8,10 +8,12 @@ typedef struct chunk_h Chunk;
 
 typedef struct chunk_h {
     Chunk* next;
-    void* item;
+    void* memory;
+    size_t bytes_reserved;
 } Chunk;
 
 typedef struct jp_arena_h {
+    size_t chunk_size; // in bytes
     Chunk *start;
     Chunk *end;
 } JPArena;
