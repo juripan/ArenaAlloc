@@ -4,9 +4,9 @@
 
 #include "jparena.h"
 
+JPArena arena = {80, 0, 0};
+
 int main(){
-    JPArena arena = {80, 0, 0};
-    
     char* p = ALLOC(&arena, char);
     *p = 'a';
     int32_t* num = arena_alloc(&arena, sizeof(int32_t));

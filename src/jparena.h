@@ -12,12 +12,11 @@ typedef struct chunk_h Chunk;
 typedef struct chunk_h {
     Chunk* next; // pointer to the next Chunk in the arena
     void* memory; // memory where the items are stored
-    size_t bytes_reserved; // in bytes
+    size_t bytes_reserved; // how much memory is used (in bytes)
 } Chunk;
 
-// linked list of Chunks
 typedef struct jp_arena_h {
-    size_t chunk_size; // in bytes
+    size_t chunk_size; // maximum capacity of the Chunks (in bytes)
     Chunk *start; // pointer to the first Chunk
     Chunk *end; // pointer to the last Chunk
 } JPArena;
