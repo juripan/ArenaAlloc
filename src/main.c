@@ -7,7 +7,7 @@
 int main(){
     JPArena arena = {80, 0, 0};
     
-    char* p = arena_alloc(&arena, sizeof(char));
+    char* p = ALLOC(&arena, char);
     *p = 'a';
     int32_t* num = arena_alloc(&arena, sizeof(int32_t));
     *num = 456565;

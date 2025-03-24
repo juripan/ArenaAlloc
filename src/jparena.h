@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdint.h>
 
+// macro that calls the arena alloc function with the size of the type supplied
+#define ALLOC(a_ptr, t) arena_alloc(a_ptr, sizeof(t))
+
 typedef struct chunk_h Chunk;
 
 typedef struct chunk_h {
