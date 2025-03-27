@@ -4,7 +4,7 @@
 
 #include "jparena.h"
 
-JPArena arena = {80, 0, 0};
+JPArena arena = ARENA(80);
 
 int main(){
     char* p = ALLOC(&arena, char);
