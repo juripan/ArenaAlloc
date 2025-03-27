@@ -84,5 +84,8 @@ int main(){
     while(fgets(buff, BUFFER_SIZE, file) != NULL){
         lex_line(buff);
     }
+
+    arena_free(&arena);
+    fclose(file);
     return 0;
 }
