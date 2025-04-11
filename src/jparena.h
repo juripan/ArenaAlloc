@@ -4,13 +4,16 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#ifdef FAIL_SOFT
+    #define ERROR(msg) return NULL
+#else
+    #define ERROR(msg) (fprintf(stderr, msg "\n"), exit(1))
+#endif
+
 #define ARENA(size_bytes) {.chunk_size = size_bytes, NULL, NULL}
 
 // calls the arena alloc function with the size of the type supplied
 #define ALLOC(a_ptr, t) arena_alloc(a_ptr, sizeof(t))
-
-// prints an error message to stderr and kills the program
-#define PANIC(msg) (fprintf(stderr, msg "\n"), exit(1))
 
 typedef struct chunk_h Chunk;
 
@@ -29,7 +32,8 @@ typedef struct jp_arena_h {
 /*
  * allocates memory of a desired size in a Chunk
  * if a chunk doesn't exist or all of them are too full then it creates a new one
- * if it can't allocate a Chunk or the size of the Chunk is too small it panics
+ * if it can't allocate a Chunk or the size of the Chunk is too small it errors out
+ * (returns NULL if FAIL_SOFT is defined else it panics)
  * returns the pointer to that part of memory
 */
 void* arena_alloc(JPArena* arena, size_t size_bytes);
@@ -58,6 +62,7 @@ void arena_reset(JPArena* const arena);
 /*
  * allocates a Chunk and its memory,
  * only used internally, shouldn't be called by the user
+ * (returns NULL if FAIL_SOFT is defined else it panics)
 */
 Chunk* chunk_alloc__(JPArena* arena);
 
@@ -68,15 +73,21 @@ Chunk* chunk_alloc__(JPArena* arena);
 void chunk_free__(Chunk* ch);
 
 void* arena_alloc(JPArena* arena, size_t size_bytes){
-    if(arena->chunk_size < size_bytes) PANIC("Chunk size too small for one item");
+    if(arena->chunk_size < size_bytes) ERROR("Chunk size too small for one item");
     
     if(arena->start == NULL){
         Chunk* chunk = chunk_alloc__(arena);
+        #ifdef FAIL_SOFT
+        if(chunk == NULL) return NULL;
+        #endif
         chunk->bytes_reserved = size_bytes;
         arena->start = chunk;
         arena->end = chunk;
     } else if(arena->end->bytes_reserved + size_bytes > arena->chunk_size){
         Chunk* chunk = chunk_alloc__(arena);
+        #ifdef FAIL_SOFT
+        if(chunk == NULL) return NULL;
+        #endif
         chunk->bytes_reserved = size_bytes;
         arena->end->next = chunk; // moves the chunk into the last pos
         arena->end = arena->end->next; // updates the pointer to the new last chunk
@@ -123,10 +134,10 @@ void arena_reset(JPArena* const arena){
 
 Chunk* chunk_alloc__(JPArena* arena){
     Chunk* chunk = malloc(sizeof(Chunk));
-    if(chunk == NULL) PANIC("Chunk allocation failed");
+    if(chunk == NULL) ERROR("Chunk allocation failed");
     chunk->memory = malloc(arena->chunk_size);
     chunk->next = NULL;
-    if(chunk->memory == NULL) PANIC("Chunk content allocation failed");
+    if(chunk->memory == NULL) ERROR("Chunk content allocation failed");
     return chunk;
 }
 
