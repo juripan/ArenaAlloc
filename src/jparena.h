@@ -10,6 +10,7 @@
     #define ERROR(msg) (fprintf(stderr, msg "\n"), exit(1))
 #endif
 
+// makes the default arena struct template made for the stack
 #define ARENA(size_bytes) {.chunk_size = size_bytes, NULL, NULL}
 
 // calls the arena alloc function with the size of the type supplied
@@ -71,6 +72,8 @@ Chunk* chunk_alloc__(JPArena* arena);
  * only used internally, shouldn't be called by the user
 */
 void chunk_free__(Chunk* ch);
+
+
 
 void* arena_alloc(JPArena* arena, size_t size_bytes){
     if(arena->chunk_size < size_bytes) ERROR("Chunk size too small for one item");
